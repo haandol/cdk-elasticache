@@ -23,7 +23,7 @@ export class CacheStack extends Stack {
         vpc: props.vpc,
       }
     );
-    this.securityGroup.connections.allowInternally(ec2.Port.tcp(6379));
+    this.securityGroup.connections.allowInternally(ec2.Port.allTraffic());
     this.replicationGroup = this.newReplicationGroup(props, this.securityGroup);
   }
 
@@ -33,13 +33,13 @@ export class CacheStack extends Stack {
       privateSubnets.push(value.subnetId);
     });
 
-    const ecSubnetGroup = new elasticache.CfnSubnetGroup(
+    const subnetGroup = new elasticache.CfnSubnetGroup(
       this,
       'ElastiCacheSubnetGroup',
       {
-        description: 'Elasticache Subnet Group',
+        description: 'ElasticacheSubnetGroup',
         subnetIds: privateSubnets,
-        cacheSubnetGroupName: 'RedisSubnetGroup',
+        cacheSubnetGroupName: `${Config.Ns}SubnetGroup`,
       }
     );
 
@@ -48,12 +48,13 @@ export class CacheStack extends Stack {
       atRestEncryptionEnabled: true,
       multiAzEnabled: true,
       cacheNodeType: 'cache.r6g.large',
-      cacheSubnetGroupName: ecSubnetGroup.cacheSubnetGroupName,
+      cacheSubnetGroupName: subnetGroup.cacheSubnetGroupName,
       engine: 'Redis',
       engineVersion: '6.x',
       numNodeGroups: 1,
       replicasPerNodeGroup: 1,
       securityGroupIds: [securityGroup.securityGroupId],
+      port: 6379,
       transitEncryptionEnabled: true,
     });
   }
