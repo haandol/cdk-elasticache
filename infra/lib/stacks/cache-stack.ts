@@ -1,4 +1,4 @@
-import { Stack, StackProps } from 'aws-cdk-lib';
+import { Stack, StackProps, RemovalPolicy } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as elasticache from 'aws-cdk-lib/aws-elasticache';
@@ -42,6 +42,7 @@ export class CacheStack extends Stack {
         cacheSubnetGroupName: `${Config.Ns}SubnetGroup`,
       }
     );
+    subnetGroup.applyRemovalPolicy(RemovalPolicy.DESTROY);
 
     return new elasticache.CfnReplicationGroup(this, 'ReplicationGroup', {
       replicationGroupDescription: `${Config.Ns}Cluster`,
