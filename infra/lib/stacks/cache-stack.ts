@@ -1,4 +1,4 @@
-import { Stack, StackProps, RemovalPolicy } from 'aws-cdk-lib';
+import { Stack, StackProps, CfnOutput, RemovalPolicy } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as elasticache from 'aws-cdk-lib/aws-elasticache';
@@ -25,6 +25,11 @@ export class CacheStack extends Stack {
     );
     this.securityGroup.connections.allowInternally(ec2.Port.allTraffic());
     this.replicationGroup = this.newReplicationGroup(props, this.securityGroup);
+
+    new CfnOutput(this, 'CacheSecurityGroup', {
+      exportName: `${Config.Ns}CacheSecurityGroup`,
+      value: this.securityGroup.securityGroupId,
+    });
   }
 
   newReplicationGroup(props: IProps, securityGroup: ec2.ISecurityGroup) {
