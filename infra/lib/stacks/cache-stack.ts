@@ -27,12 +27,18 @@ export class CacheStack extends Stack {
     this.replicationGroup = this.newReplicationGroup(props, this.securityGroup);
 
     new CfnOutput(this, 'CacheSecurityGroup', {
-      exportName: `${Config.Ns}CacheSecurityGroup`,
       value: this.securityGroup.securityGroupId,
+    });
+
+    new CfnOutput(this, 'CacheMasterEndpoint', {
+      value: this.replicationGroup.attrPrimaryEndPointAddress,
     });
   }
 
-  newReplicationGroup(props: IProps, securityGroup: ec2.ISecurityGroup) {
+  newReplicationGroup(
+    props: IProps,
+    securityGroup: ec2.ISecurityGroup
+  ): elasticache.CfnReplicationGroup {
     let privateSubnets: string[] = [];
     props.vpc.privateSubnets.forEach(function (value) {
       privateSubnets.push(value.subnetId);
